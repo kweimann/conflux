@@ -1,18 +1,25 @@
-# conflux
-time series utility library for Python
+# Conflux
 
-features:
-* evenly / unevenly spaced time series support
-* interpolation (unevenly spaced -> evenly spaced time series)
-* dataset from evenly spaced time series
+Time series utility library for Python.
 
-### installation
+Features:
+* classes for evenly / unevenly spaced time series
+* interpolation of unevenly spaced time series
+* dataset creation from evenly spaced time series
 
-Clone or download this repository and run `pip install .` in the root directory.
+### Installation
 
-### usage
+Requirements:
+* `Python3`
 
-for complete example see: `example.py`
+Installation:
+1. `git clone https://github.com/kweimann/conflux.git`
+2. `cd conflux`
+3. `pip install .`
+
+### Usage
+
+See `example.py` for complete example.
 
 ```python
 # number of observations
