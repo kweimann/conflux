@@ -49,7 +49,7 @@ for x, y in zip(test_features, test_labels):
 
 plt.plot(xs, f(xs), label="f(x)")
 plt.plot(timestamps, observations, 'o', label="observations")
-plt.plot(linear_interp.timestamps, linearly_interp.observations, label='linear interp')
+plt.plot(linear_interp.timestamps, linear_interp.observations, label='linear interp')
 plt.plot(most_recent_interp.timestamps, most_recent_interp.observations, label='most recent interp')
 plt.legend()
 plt.show()
