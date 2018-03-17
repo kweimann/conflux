@@ -4,6 +4,10 @@ import numpy as np
 
 
 class IrregularTimeSeries(object):
+    """
+    Utility class for unevenly spaced time series i.e. time series whose
+    spacing of observation times is not constant
+    """
     def __init__(self, observations: np.ndarray, timestamps: np.ndarray):
         """
         :param observations:    Numpy array containing all observations.

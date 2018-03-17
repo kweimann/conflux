@@ -2,6 +2,10 @@ import numpy as np
 
 
 class RegularTimeSeries(object):
+    """
+    Utility class for evenly spaced time series i.e. time series whose
+    spacing of observation times is constant
+    """
     def __init__(self, observations: np.ndarray, interval: int, start_timestamp: int):
         """
         :param observations:        Numpy array containing all observations.
