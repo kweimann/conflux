@@ -1,8 +1,10 @@
 # conflux
 time series utility library for Python
 
+features:
 * evenly / unevenly spaced time series support
 * interpolation (unevenly spaced -> evenly spaced time series)
+* dataset from evenly spaced time series
 
 ### usage
 
@@ -26,7 +28,7 @@ time_series = conflux.ts.IrregularTimeSeries(observations, timestamps)
 
 # linearly interpolate the time series starting from `t0` until `tn`
 linear_interp = time_series.interpolate(interval=1, start_timestamp=t0,
-                                          end_timestamp=tn, method="linear")
+                                        end_timestamp=tn, method="linear")
 
 # interpolate time series using `most recent` strategy starting from `t0` until `tn`
 most_recent_interp = time_series.interpolate(interval=1, start_timestamp=t0,
