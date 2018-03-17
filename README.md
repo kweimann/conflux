@@ -1,6 +1,9 @@
 # conflux
 time series utility library for Python
 
+* evenly / unevenly spaced time series support
+* interpolation (unevenly spaced -> evenly spaced time series)
+
 ### usage
 
 ```python
