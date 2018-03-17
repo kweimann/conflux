@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 setup(name="conflux",
@@ -8,6 +8,6 @@ setup(name="conflux",
       author="Kuba Weimann",
       author_email="kuba.weimann@gmail.com",
       license="MIT",
-      packages=["conflux"],
+      packages=find_packages(),
       install_requires=["numpy"],
       zip_safe=False)
