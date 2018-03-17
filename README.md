@@ -8,6 +8,8 @@ features:
 
 ### usage
 
+for complete example see: `example.py`
+
 ```python
 # number of observations
 n = 25  
@@ -80,5 +82,3 @@ features	labels
 [ 6.60962]	[ 6.80911]
 [ 6.80911]	[ 7.0086]
 ```
-
-for complete example see: `example.py`
