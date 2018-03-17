@@ -6,6 +6,10 @@ features:
 * interpolation (unevenly spaced -> evenly spaced time series)
 * dataset from evenly spaced time series
 
+### installation
+
+Clone or download this repository and run `pip install .` in the root directory.
+
 ### usage
 
 for complete example see: `example.py`
