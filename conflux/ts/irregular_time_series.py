@@ -86,9 +86,9 @@ class IrregularTimeSeries(object):
                     break
                 prev_ts, prev_val, start = next_interval
         elif method == 'most_recent':
-            for (_, prev_val, start), (_, current_val, end) in utils.sliding_window(
+            for (_, prev_val, start), (_, next_val, end) in utils.sliding_window(
                     self._interval_iterator(start_timestamp, end_timestamp, interval, skip_within_interval=True)):
-                interpolated[start:end] = prev_val if prev_val is not None else current_val
+                interpolated[start:end] = prev_val if prev_val is not None else next_val
         else:
             raise ValueError("Unknown interpolation method.")
 
