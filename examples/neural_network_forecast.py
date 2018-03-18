@@ -38,7 +38,7 @@ if __name__ == "__main__":
     # and one output vector of shape (20,) i.e. 20 forecast steps
     train, test_1 = ds.split_train_test(-1, test_n_out=steps_1)
     # test_2 has 20 input vectors of shape (1,)
-    # and 20 out vectors of shape (20,) i.e. 1 forecast step
+    # and 20 out vectors of shape (1,) i.e. 1 forecast step
     train_, test_2 = ds.split_train_test(-20, test_n_out=steps_2)
 
     # assert train == train_

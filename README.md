@@ -80,7 +80,7 @@ ds = conflux.ts.DataSet.from_regular_ts(ts, n_in=n_in, n_out=n_out)
 # and one output vector of shape (20,) i.e. 20 forecast steps
 train, test_1 = ds.split_train_test(-1, test_n_out=steps_1)
 # test_2 has 20 input vectors of shape (1,)
-# and 20 out vectors of shape (20,) i.e. 1 forecast step
+# and 20 out vectors of shape (1,) i.e. 1 forecast step
 train_, test_2 = ds.split_train_test(-20, test_n_out=steps_2)
 
 # prepare a very simple neural network with just one dense layer
