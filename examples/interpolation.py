@@ -4,6 +4,11 @@ import conflux
 
 
 if __name__ == "__main__":
+    """
+    This example shows how to interpolate unevenly spaced time series
+    in order to obtain evenly spaced time series using linear interpolation
+    and most recent interpolation.
+    """
     np.random.seed(67)
 
     # number of observations
