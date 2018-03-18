@@ -88,6 +88,13 @@ class RegularTimeSeries(object):
         return self.observations.shape
 
     @property
+    def dtype(self):
+        """
+        :return: Data type of the observation array.
+        """
+        return self.observations.dtype
+
+    @property
     def ndim(self):
         """
         :return: Number of dimensions of the observation array.

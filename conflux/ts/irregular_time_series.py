@@ -145,6 +145,20 @@ class IrregularTimeSeries(object):
         """
         return self.observations.shape
 
+    @property
+    def dtype(self):
+        """
+        :return: Data type of the observation array.
+        """
+        return self.observations.dtype
+
+    @property
+    def ndim(self):
+        """
+        :return: Number of dimensions of the observation array.
+        """
+        return self.observations.ndim
+
     def _index_of(self, timestamp):
         """
         :param timestamp:   Timestamp of an observation.

@@ -71,8 +71,11 @@ class DataSet(object):
             if n_time_steps <= 0:
                 raise ValueError("Number of time steps must be positive.")
             if n_in != n_out:
-                raise ValueError("Output must have the same size as the input.")
-        if step is not None and step <= 0:
+                raise ValueError("Output must have the same size as the input for temporal data set.")
+
+        if step is None:
+            step = n_out
+        elif step <= 0:
             raise ValueError("Step size must be a positive number.")
 
         if ts.ndim == 1:
@@ -87,20 +90,18 @@ class DataSet(object):
         if array_length < block_size:
             raise ValueError("Not enough data for given input/output parameters.")
 
-        step = step if step is not None else n_out
-
         remainder = (array_length - block_size) % step
         data_set_size = (array_length - block_size) // step + 1
 
         if n_time_steps is None:
-            features = np.empty((data_set_size, n_in * obs_length))
-            labels = np.empty((data_set_size, n_out * obs_length))
+            features = np.empty((data_set_size, n_in * obs_length), dtype=ts.dtype)
+            labels = np.empty((data_set_size, n_out * obs_length), dtype=ts.dtype)
             for row, i in enumerate(range(block_size + remainder, array_length + 1, step)):
                 features[row] = ts.observations[i - block_size:i - n_out].flatten()
                 labels[row] = ts.observations[i - n_out:i].flatten()
         else:
-            features = np.empty((data_set_size, n_time_steps, n_in * obs_length))
-            labels = np.empty((data_set_size, n_out * obs_length))
+            features = np.empty((data_set_size, n_time_steps, n_in * obs_length), dtype=ts.dtype)
+            labels = np.empty((data_set_size, n_out * obs_length), dtype=ts.dtype)
             for row, i in enumerate(range(block_size + remainder, array_length + 1, step)):
                 features[row] = ts.observations[i - block_size:i - n_out].reshape(n_time_steps, n_in * obs_length)
                 labels[row] = ts.observations[i - n_out:i].flatten()
@@ -109,7 +110,46 @@ class DataSet(object):
 
     def split(self, i: int):
         """
-        :param i:   Index of the split.
+        :param i:   Index of the split. Negative indexing is supported.
         :return: Two data sets split at the provided index.
         """
         return self[:i], self[i:]
+
+    def split_train_test(self, i: int, test_n_out: int = None):
+        """
+        :param i:           Index of the split. Negative indexing is supported.
+        :param test_n_out:  Size of the output vector of the test set. By default equal to the
+                            size of the output vector of this data set.
+        :return: Train and test data sets.
+        """
+        _, n_out, *_ = self.y.shape
+
+        if test_n_out is None:
+            test_n_out = n_out
+        elif test_n_out <= 0:
+            raise ValueError("Output vector size must be a positive number.")
+
+        if test_n_out <= n_out:
+            train = self[:i]
+            test = DataSet(self.x[i:], self.y[i:, :test_n_out])
+        else:
+            test_size = (len(self) - i) if i >= 0 else -i
+            # number of output vectors that fit inside the test output vector
+            n_output_vectors = -(-test_n_out // n_out)
+            # adjust test size for the number of output vectors
+            adjusted_test_size = test_size + n_output_vectors - 1
+
+            if adjusted_test_size > len(self):
+                raise ValueError("Size of the test set is bigger than the size of the complete data set.")
+
+            test_x = self.x[-adjusted_test_size:-n_output_vectors + 1]
+            test_y = np.empty((test_size, n_output_vectors * n_out), dtype=self.y.dtype)
+
+            for i in range(n_output_vectors):
+                test_y[:, n_out * i:n_out * (i + 1)] = \
+                    self.y[-adjusted_test_size + i:(-n_output_vectors + i + 1) or None]
+
+            train = self[:-adjusted_test_size]
+            test = DataSet(test_x, test_y[:, :test_n_out])
+
+        return train, test
