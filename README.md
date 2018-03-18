@@ -5,7 +5,7 @@ Time series utility library for Python.
 Features:
 * classes for evenly / unevenly spaced time series
 * interpolation of unevenly spaced time series
-* dataset creation from evenly spaced time series
+* transformation of evenly spaced time series into dataset
 
 ### Installation
 
