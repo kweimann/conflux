@@ -36,16 +36,6 @@ if __name__ == "__main__":
     most_recent_interp = time_series.interpolate(interval=1, start_timestamp=t0,
                                                  end_timestamp=tn, method="most_recent")
 
-    # create data set from linearly interpolated time series
-    # features shape: (200, 1) labels shape: (200, 1)
-    ds = conflux.ts.DataSet.from_regular_ts(linear_interp, n_in=1, n_out=1)
-    # split dataset into train and test, test includes last 20 feature-label pairs
-    _, (test_features, test_labels) = ds.split(-20)
-
-    print("test set:\nfeatures\tlabels")
-    for x, y in zip(test_features, test_labels):
-        print("{}\t{}".format(x, y))
-
     plt.plot(xs, f(xs), label="f(x)")
     plt.plot(timestamps, observations, 'o', label="observations")
     plt.plot(linear_interp.timestamps, linear_interp.observations, label='linear interpolation')
