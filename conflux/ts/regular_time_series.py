@@ -1,3 +1,4 @@
+from conflux.ts.data_set import DataSet
 import numpy as np
 
 
@@ -79,6 +80,66 @@ class RegularTimeSeries(object):
         :return: Two regular time series split at the provided index.
         """
         return self[:i], self[i:]
+
+    def to_dataset(self,
+                   *,
+                   n_in: int,
+                   n_out: int,
+                   n_time_steps: int = None,
+                   step: int = None):
+        """
+        Creates a data set from a regular time series by sliding a window over the observations.
+        :param n_in:            Size of the input vector.
+        :param n_out:           Size of the output vector.
+        :param n_time_steps:    Number of time steps in the input vector. Supplying this argument
+                                creates a 3D feature array. By default the time component is not considered.
+        :param step:            Sliding window step size. By default equal to `n_out`.
+        :return: Data set.
+        """
+        if n_in <= 0:
+            raise ValueError("Input vector size must be a positive number.")
+        if n_out <= 0:
+            raise ValueError("Output vector size must be a positive number.")
+        if n_time_steps is not None:
+            if n_time_steps <= 0:
+                raise ValueError("Number of time steps must be positive.")
+            if n_in != n_out:
+                raise ValueError("Output must have the same size as the input for temporal data set.")
+
+        if step is None:
+            step = n_out
+        elif step <= 0:
+            raise ValueError("Step size must be a positive number.")
+
+        if self.observations.ndim == 1:
+            array_length, obs_length = len(self), 1
+        elif self.observations.ndim == 2:
+            array_length, obs_length = self.observations.shape
+        else:
+            raise ValueError("Only 1D or 2D time series are allowed.")
+
+        block_size = n_in * (n_time_steps or 1) + n_out
+
+        if array_length < block_size:
+            raise ValueError("Not enough data for given input/output parameters.")
+
+        remainder = (array_length - block_size) % step
+        data_set_size = (array_length - block_size) // step + 1
+
+        if n_time_steps is None:
+            features = np.empty((data_set_size, n_in * obs_length), dtype=self.observations.dtype)
+            labels = np.empty((data_set_size, n_out * obs_length), dtype=self.observations.dtype)
+            for row, i in enumerate(range(block_size + remainder, array_length + 1, step)):
+                features[row] = self.observations[i - block_size:i - n_out].flatten()
+                labels[row] = self.observations[i - n_out:i].flatten()
+        else:
+            features = np.empty((data_set_size, n_time_steps, n_in * obs_length), dtype=self.observations.dtype)
+            labels = np.empty((data_set_size, n_out * obs_length), dtype=self.observations.dtype)
+            for row, i in enumerate(range(block_size + remainder, array_length + 1, step)):
+                features[row] = self.observations[i - block_size:i - n_out].reshape(n_time_steps, n_in * obs_length)
+                labels[row] = self.observations[i - n_out:i].flatten()
+
+        return DataSet(features, labels)
 
     @property
     def shape(self):

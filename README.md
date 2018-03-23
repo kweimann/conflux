@@ -74,7 +74,7 @@ steps_1, steps_2 = 20, 1
 # create evenly spaced time series from the data
 ts = conflux.ts.RegularTimeSeries(data, interval=1, start_timestamp=0)
 # transform time series into data set
-ds = conflux.ts.DataSet.from_regular_ts(ts, n_in=n_in, n_out=n_out)
+ds = ts.to_dataset(n_in=n_in, n_out=n_out)
 # split the data set into train and test
 # test_1 has exactly one input vector of shape (1,)
 # and one output vector of shape (20,) i.e. 20 forecast steps
@@ -95,7 +95,7 @@ model.fit(train.x, train.y, epochs=500)
 predicted_1 = model.forecast(test_1.x, steps=steps_1)
 predicted_2 = model.forecast(test_2.x, steps=steps_2)
 ```
-
+Output:
 ```
 expected 1:
 features	outputs

@@ -32,7 +32,7 @@ if __name__ == "__main__":
     # create evenly spaced time series from the data
     ts = conflux.ts.RegularTimeSeries(data, interval=1, start_timestamp=0)
     # transform time series into data set
-    ds = conflux.ts.DataSet.from_regular_ts(ts, n_in=n_in, n_out=n_out)
+    ds = ts.to_dataset(n_in=n_in, n_out=n_out)
     # split the data set into train and test
     # test_1 has exactly one input vector of shape (1,)
     # and one output vector of shape (20,) i.e. 20 forecast steps
