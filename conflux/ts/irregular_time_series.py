@@ -66,23 +66,38 @@ class IrregularTimeSeries(object):
             interval_iterator = self._interval_iterator(start_timestamp, end_timestamp, interval)
             prev_ts, prev_val, start = next(interval_iterator)
             if prev_val is None:
-                # first value should be extrapolated
+                # values from first interval should be extrapolated
                 prev_ts, prev_val, end = next(interval_iterator)
                 if prev_val is None:
                     # special case: no observations within interpolation interval, end has been reached
                     interpolated[start:end] = None
 
+            # define a function returning timestamp array according to observations' dimensionality
+            if self.observations.ndim == 1:
+                # returns row vector
+                def timestamps(start, end):
+                    return np.arange(start, end) * interval + start_timestamp
+            elif self.observations.ndim == 2:
+                # returns column vector
+                def timestamps(start, end):
+                    return np.arange(start, end).reshape((-1, 1)) * interval + start_timestamp
+            else:
+                raise ValueError("Linear interpolation supports only 1D and 2D data.")
+
             for next_interval, peeked_interval in utils.lookahead(interval_iterator):
+                if peeked_interval is None:
+                    # end has been reached
+                    # values from last interval have been interpolated in previous iteration
+                    break
                 next_ts, next_val, end = next_interval
                 _, peeked_val, peeked_end = peeked_interval
                 if peeked_val is None:
-                    # last value should be extrapolated
+                    # extrapolate values from last interval
                     end = peeked_end
-                timestamps = np.arange(start, end) * interval + start_timestamp
                 interpolated[start:end] = prev_val + (next_val - prev_val) * \
-                                                     (timestamps - prev_ts) / (next_ts - prev_ts)
+                                                     (timestamps(start, end) - prev_ts) / (next_ts - prev_ts)
                 if peeked_val is None:
-                    # last value has already been processed
+                    # values from last interval have been extrapolated
                     break
                 prev_ts, prev_val, start = next_interval
         elif method == 'most_recent':
@@ -107,7 +122,8 @@ class IrregularTimeSeries(object):
         last_interval_idx = (end_timestamp - start_timestamp) // interval + 1
         start_idx = self._index_of(start_timestamp)
         if start_idx == -1:
-            # first value lies outside of interpolation interval so it must be extrapolated
+            # first value lies outside of interpolation interval
+            # so the values within first interval must be extrapolated
             prev_ts = start_timestamp
             prev_val = None
         else:
@@ -133,7 +149,8 @@ class IrregularTimeSeries(object):
         # yield the remaining previous observation
         yield prev_ts, prev_val, prev_interval_idx + 1
         if end_timestamp > next_ts:
-            # last value lies outside of interpolation interval so it must be extrapolated
+            # last value lies outside of interpolation interval
+            # so the values within last interval must be extrapolated
             yield end_timestamp, None, last_interval_idx
         else:
             yield next_ts, next_val, last_interval_idx
