@@ -7,11 +7,11 @@ class RegularTimeSeries(object):
     Utility class for evenly spaced time series i.e. time series whose
     spacing of observation times is constant
     """
-    def __init__(self, observations: np.ndarray, interval: int, start_timestamp: int):
+    def __init__(self, observations: np.ndarray, interval: int = 1, start_timestamp: int = 0):
         """
         :param observations:        Numpy array containing all observations.
-        :param interval:            Interval between two consecutive observations.
-        :param start_timestamp:     Timestamp of the first observation.
+        :param interval:            Interval between two consecutive observations. Default: 1
+        :param start_timestamp:     Timestamp of the first observation. Default: 0
         """
         if interval <= 0:
             raise ValueError("Interval must be a positive number.")
