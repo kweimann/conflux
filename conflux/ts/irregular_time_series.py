@@ -49,6 +49,9 @@ class IrregularTimeSeries(object):
             raise ValueError("Start timestamp cannot be negative.")
         if end_timestamp is not None and end_timestamp < 0:
             raise ValueError("End timestamp cannot be negative.")
+        supported_methods = ["most_recent", "linear"]
+        if method not in supported_methods:
+            raise ValueError("Unknown interpolation method. Supported methods:", supported_methods)
         if len(self) == 0:
             raise ValueError("No values to interpolate.")
 
@@ -75,12 +78,12 @@ class IrregularTimeSeries(object):
             # define a function returning timestamp array according to observations' dimensionality
             if self.observations.ndim == 1:
                 # returns row vector
-                def timestamps(start, end):
-                    return np.arange(start, end) * interval + start_timestamp
+                def timestamps(start_ts, end_ts):
+                    return np.arange(start_ts, end_ts) * interval + start_timestamp
             elif self.observations.ndim == 2:
                 # returns column vector
-                def timestamps(start, end):
-                    return np.arange(start, end).reshape((-1, 1)) * interval + start_timestamp
+                def timestamps(start_ts, end_ts):
+                    return np.arange(start_ts, end_ts).reshape((-1, 1)) * interval + start_timestamp
             else:
                 raise ValueError("Linear interpolation supports only 1D and 2D data.")
 
@@ -104,8 +107,6 @@ class IrregularTimeSeries(object):
             for (_, prev_val, start), (_, next_val, end) in utils.sliding_window(
                     self._interval_iterator(start_timestamp, end_timestamp, interval, skip_within_interval=True)):
                 interpolated[start:end] = prev_val if prev_val is not None else next_val
-        else:
-            raise ValueError("Unknown interpolation method.")
 
         return RegularTimeSeries(interpolated, interval, start_timestamp)
 
@@ -119,8 +120,10 @@ class IrregularTimeSeries(object):
         :param skip_within_interval:    If true only the most recent observation within an interval will be returned.
         :return: (timestamp, value, interval_index) iterator
         """
+        # calculate indices of the interpolation interval
         last_interval_idx = (end_timestamp - start_timestamp) // interval + 1
         start_idx = self._index_of(start_timestamp)
+
         if start_idx == -1:
             # first value lies outside of interpolation interval
             # so the values within first interval must be extrapolated
@@ -129,25 +132,29 @@ class IrregularTimeSeries(object):
         else:
             prev_ts = self.timestamps[start_idx]
             prev_val = self.observations[start_idx]
-        prev_interval_idx = -1
+
+        prev_interval_idx = 0
         next_ts, next_val = prev_ts, prev_val
+
         # iterate over all observations that lie within interpolation interval
         for i in range(start_idx + 1, len(self)):
             next_ts, next_val = self.timestamps[i], self.observations[i]
             # end of interpolation interval has been reached
             if next_ts > end_timestamp:
                 break
-            # round current interval index down
-            interval_idx = (next_ts - start_timestamp) // interval
+            # round current interval index up
+            interval_idx = self._ceil_div(next_ts - start_timestamp, interval)
             # yield previous observation
             if not skip_within_interval or interval_idx > prev_interval_idx:
-                yield prev_ts, prev_val, prev_interval_idx + 1
+                yield prev_ts, prev_val, prev_interval_idx
                 prev_interval_idx = interval_idx
             # update previous observation for next iteration
             prev_ts = next_ts
             prev_val = next_val
+
         # yield the remaining previous observation
-        yield prev_ts, prev_val, prev_interval_idx + 1
+        yield prev_ts, prev_val, prev_interval_idx
+
         if end_timestamp > next_ts:
             # last value lies outside of interpolation interval
             # so the values within last interval must be extrapolated
@@ -186,3 +193,7 @@ class IrregularTimeSeries(object):
             if ts > timestamp:
                 return i - 1
         return len(self) - 1
+
+    @staticmethod
+    def _ceil_div(n, d):
+        return -(-n // d)
