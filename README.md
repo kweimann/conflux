@@ -52,7 +52,7 @@ most_recent_interp = time_series.interpolate(interval=1, start_timestamp=t0,
                                              end_timestamp=tn, method="most_recent")
 ```
 
-![interpolation_example](https://user-images.githubusercontent.com/8287691/37554460-5cb060a0-29d9-11e8-8dfc-c36cc8945e69.png)
+![interpolation_example](https://user-images.githubusercontent.com/8287691/42472678-799dfd42-83c2-11e8-8ac2-d885c5aac97a.png)
 
 #### Neural Network Forecast
 
